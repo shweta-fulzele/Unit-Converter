@@ -20,9 +20,9 @@ import com.base.unitconverter.ui.theme.PrimaryColor
     @Composable
     fun TextStyle.h1(color: Color): TextStyle {
         return copy(
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.ExtraBold,
             color = color,
-            fontSize = 24.sp
+            fontSize = 32.sp
         )
     }
 
