@@ -22,8 +22,14 @@ import androidx.compose.ui.unit.dp
 
 
 @Composable
-fun MyAppOutlineTextField(placeholder: String, onValueChange: (String) -> Unit = {}) {
-    OutlinedTextField(value = placeholder, onValueChange = onValueChange)
+fun MyAppOutlineTextField(
+    value: String,
+    placeholder: String,
+    onValueChange: (String) -> Unit = {}
+) {
+    OutlinedTextField(value = value, onValueChange = onValueChange, placeholder = {
+        PlaceholderText(placeholder)
+    })
 }
 
 @Composable

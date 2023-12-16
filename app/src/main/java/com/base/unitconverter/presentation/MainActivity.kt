@@ -13,15 +13,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,6 +32,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.component1
+import androidx.core.graphics.component2
 import com.base.unitconverter.R
 import com.base.unitconverter.ui.theme.UnitConverterTheme
 import com.base.unitconverter.userinterfaceutils.HeightSpacer
@@ -37,6 +42,7 @@ import com.base.unitconverter.userinterfaceutils.MyAppOutlineTextField
 import com.base.unitconverter.userinterfaceutils.TextWithColon
 import com.base.unitconverter.userinterfaceutils.TitleBold
 import com.base.unitconverter.userinterfaceutils.TitleMedium
+import kotlin.math.roundToInt
 
 class MainActivity : ComponentActivity() {
 
@@ -49,12 +55,28 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    UnitConverter()
+                    MyScreen()
                 }
             }
         }
     }
 }
+
+@Composable
+fun MyScreen() {
+    var counter by remember { mutableIntStateOf(0) }
+
+    Column {
+        println("Composing with counter before: ${counter.component1()}")
+
+        Button(onClick = { counter = counter + 1 }) {
+            Text("Increment Counter")
+        }
+
+        println("Composing with counter after: ${counter.component1()} ")
+    }
+}
+
 
 @Composable
 fun UnitConverter() {
@@ -72,27 +94,55 @@ fun UnitConverterUI(context: Context) {
         verticalArrangement = Arrangement.Center
     ) {
 
-        val isDropDownExpanded1 = remember {
+        var inputValue by remember {
+            mutableStateOf("")
+        }
+
+        var outputValue by remember {
+            mutableStateOf("")
+        }
+
+        var inputUnit by remember {
+            mutableStateOf("Centimeters")
+        }
+
+        var outputUnit by remember {
+            mutableStateOf("Meters")
+        }
+
+        var iExpanded by remember {
             mutableStateOf(false)
         }
 
-        val buttonText1 = remember {
-            mutableIntStateOf(R.string.select)
-        }
-
-        val isDropDownExpanded2 = remember {
+        var oExpanded by remember {
             mutableStateOf(false)
         }
 
-        val buttonText2 = remember {
-            mutableIntStateOf(R.string.select)
+        val iConversionFactory = remember {
+            mutableStateOf(1.00)
+        }
+
+        val oConversionFactory = remember {
+            mutableStateOf(1.00)
+        }
+
+        fun convertFactory() {
+            val inputValueDouble = inputValue.toDoubleOrNull() ?: 0.0
+            val result =
+                (inputValueDouble * iConversionFactory.value * 100.0 / oConversionFactory.value).roundToInt() / 100.0
+            outputValue = result.toString()
         }
 
         TitleBold(text = stringResource(id = R.string.unit_converter))
-
-        HeightSpacer(height = 10)
-        MyAppOutlineTextField(placeholder = stringResource(id = R.string.enter_value))
-        HeightSpacer(height = 10)
+        HeightSpacer(height = 24)
+        MyAppOutlineTextField(
+            value = inputValue,
+            placeholder = stringResource(id = R.string.enter_value)
+        ) {
+            inputValue = it
+            convertFactory()
+        }
+        HeightSpacer(height = 16)
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -103,101 +153,109 @@ fun UnitConverterUI(context: Context) {
                 .padding(16.dp)
         ) {
 
+//            Input Box
             Box {
-                MyAppButton(stringResource(id = buttonText1.value), cornerShape = 10) {
+
+//                Input Button
+                MyAppButton(inputUnit, cornerShape = 10) {
 //onCLick
-                    isDropDownExpanded1.value = true
+                    iExpanded = true
                 }
 
-                DropdownMenu(expanded = isDropDownExpanded1.value, onDismissRequest = { }) {
+                DropdownMenu(expanded = iExpanded, onDismissRequest = { iExpanded = false }) {
                     DropdownMenuItem(
                         text = { TitleMedium(text = stringResource(id = R.string.centimeter)) },
                         onClick = {
-                            isDropDownExpanded1.value = false
-                            buttonText1.intValue = R.string.centimeter
+                            iExpanded = false
+                            inputUnit =context.getString(R.string.centimeter)
+                            iConversionFactory.value = 0.01
+                            convertFactory()
                         })
 
                     DropdownMenuItem(
                         text = { TitleMedium(text = stringResource(id = R.string.meter)) },
                         onClick = {
-                            isDropDownExpanded1.value = false
-                            buttonText1.intValue = R.string.meter
+                            iExpanded = false
+                            inputUnit = context.getString(R.string.meter)
+                            iConversionFactory.value = 1.00
+                            convertFactory()
                         })
 
                     DropdownMenuItem(
                         text = { TitleMedium(text = stringResource(id = R.string.millimeter)) },
                         onClick = {
-                            isDropDownExpanded1.value = false
-                            buttonText1.intValue = R.string.millimeter
+                            iExpanded = false
+                            inputUnit = context.getString(R.string.millimeter)
+                            iConversionFactory.value = 0.001
+                            convertFactory()
                         })
 
                     DropdownMenuItem(
                         text = { TitleMedium(text = stringResource(id = R.string.feet)) },
                         onClick = {
-                            isDropDownExpanded1.value = false
-                            buttonText1.intValue = R.string.feet
+                            iExpanded = false
+                            inputUnit = context.getString(R.string.feet)
+                            iConversionFactory.value = 0.3048
+                            convertFactory()
                         })
 
-                    DropdownMenuItem(
-                        text = { TitleMedium(text = stringResource(id = R.string.inch)) },
-                        onClick = {
-                            isDropDownExpanded1.value = false
-                            buttonText1.intValue = R.string.inch
-                        })
                 }
             }
 
-
+//            Output Box
             Box {
-                MyAppButton(stringResource(id = buttonText2.value), cornerShape = 10) {
-//onCLick
-                    isDropDownExpanded2.value = true
+                //                Output Button
+                MyAppButton(
+                    outputUnit,
+                    cornerShape = 10
+                ) { oExpanded = true }
 
-                }
-
-                DropdownMenu(expanded = isDropDownExpanded2.value, onDismissRequest = { }) {
+                DropdownMenu(expanded = oExpanded, onDismissRequest = { oExpanded = false }) {
                     DropdownMenuItem(
                         text = { TitleMedium(text = stringResource(id = R.string.centimeter)) },
                         onClick = {
-                            isDropDownExpanded2.value = false
-                            buttonText2.intValue = R.string.centimeter
+                            oExpanded = false
+                            outputUnit = context.getString(R.string.centimeter)
+                            oConversionFactory.value = 0.01
+                            convertFactory()
                         })
 
                     DropdownMenuItem(
                         text = { TitleMedium(text = stringResource(id = R.string.meter)) },
                         onClick = {
-                            isDropDownExpanded2.value = false
-                            buttonText2.intValue = R.string.meter
+                            oExpanded = false
+                            outputUnit = context.getString(R.string.meter)
+                            oConversionFactory.value = 1.00
+                            convertFactory()
                         })
 
                     DropdownMenuItem(
                         text = { TitleMedium(text = stringResource(id = R.string.millimeter)) },
                         onClick = {
-                            isDropDownExpanded2.value = false
-                            buttonText2.intValue = R.string.millimeter
+                            oExpanded = false
+                            outputUnit = context.getString(R.string.millimeter)
+                            oConversionFactory.value = 0.001
+                            convertFactory()
                         })
 
                     DropdownMenuItem(
                         text = { TitleMedium(text = stringResource(id = R.string.feet)) },
                         onClick = {
-                            isDropDownExpanded2.value = false
-                            buttonText2.intValue = R.string.feet
+                            oExpanded = false
+                            outputUnit =context.getString(R.string.feet)
+                            oConversionFactory.value = 0.3048
+                            convertFactory()
                         })
 
-                    DropdownMenuItem(
-                        text = { TitleMedium(text = stringResource(id = R.string.inch)) },
-                        onClick = {
-                            isDropDownExpanded2.value = false
-                            buttonText2.intValue = R.string.inch
-                        })
+
                 }
 
             }
         }
 
-        HeightSpacer(height = 10)
+        HeightSpacer(height = 20)
 
-        TextWithColon(text = stringResource(id = R.string.result))
+        TextWithColon(text = stringResource(id = R.string.result), outputText = "$outputValue $outputUnit")
     }
 }
 

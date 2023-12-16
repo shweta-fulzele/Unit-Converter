@@ -11,6 +11,7 @@ import androidx.compose.ui.text.style.TextAlign
 import com.base.unitconverter.userinterfaceutils.extensions.addColon
 import com.base.unitconverter.userinterfaceutils.extensions.h1
 import com.base.unitconverter.userinterfaceutils.extensions.h2
+import com.base.unitconverter.userinterfaceutils.extensions.placeholder
 
 
 @Composable
@@ -42,9 +43,23 @@ fun TitleMedium(text: String,
     )
 }
 
+
+
 @Composable
-fun TextWithColon(text: String
+fun PlaceholderText(text: String,
+                @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
+) {
+    Text(
+        text = text,
+        style = TextStyle.Default.placeholder(),
+        modifier = modifier,
+        textAlign = TextAlign.Center
+    )
+}
+
+@Composable
+fun TextWithColon(text: String, outputText :String
 ) {
     val modifiedString = text.addColon()
-    TitleMedium(text = modifiedString)
+    TitleMedium(text = "$modifiedString $outputText")
 }
